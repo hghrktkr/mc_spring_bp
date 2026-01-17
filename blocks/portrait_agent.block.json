@@ -1,0 +1,146 @@
+{
+  "format_version": "1.21.10",
+  "minecraft:block": {
+    "description": {
+      "identifier": "edu:portrait_agent",
+      "menu_category": {
+        "category": "construction"
+      },
+      "traits": {
+        "minecraft:placement_direction": {
+          "enabled_states": ["minecraft:cardinal_direction"]
+        }
+      },
+      "states": {
+        "edu:isOpen": [false, true]
+      }
+    },
+    "components": {
+      "minecraft:collision_box": {
+        "origin": [-8, 0, 6],
+        "size": [16, 16, 2]
+      },
+      "minecraft:selection_box": {
+        "origin": [-8, 0, 6],
+        "size": [16, 16, 2]
+      },
+      "minecraft:destructible_by_mining": {
+        "seconds_to_destroy": 3.15
+      },
+      "minecraft:destructible_by_explosion": false,
+      "minecraft:geometry": "geometry.portrait_agent",
+      "minecraft:material_instances": {
+        "*": {
+          "texture": "portrait_agent",
+          "render_method": "opaque"
+        }
+      },
+      "minecraft:light_emission": 5,
+      "minecraft:map_color": "#a4260f",
+      "tag:minecraft:is_axe_item_destructible": {},
+      "minecraft:custom_components": ["edu:door_open"]
+    },
+    "permutations": [
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('edu:isOpen') == false",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [0, 180, 0]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('edu:isOpen') == false",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [0, 0, 0]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('edu:isOpen') == false",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [0, 90, 0]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('edu:isOpen') == false",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [0, 270, 0]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'north' && q.block_state('edu:isOpen') == true ",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [0, 180, 0]
+          },
+          "minecraft:geometry": "geometry.portrait_agent_open",
+          "minecraft:collision_box": {
+            "origin": [6, 0, -8],
+            "size": [2, 16, 16]
+          },
+          "minecraft:selection_box": {
+            "origin": [6, 0, -8],
+            "size": [2, 16, 16]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'south' && q.block_state('edu:isOpen') == true ",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [0, 0, 0]
+          },
+          "minecraft:geometry": "geometry.portrait_agent_open",
+          "minecraft:collision_box": {
+            "origin": [6, 0, -8],
+            "size": [2, 16, 16]
+          },
+          "minecraft:selection_box": {
+            "origin": [6, 0, -8],
+            "size": [2, 16, 16]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'east' && q.block_state('edu:isOpen') == true ",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [0, 90, 0]
+          },
+          "minecraft:geometry": "geometry.portrait_agent_open",
+          "minecraft:collision_box": {
+            "origin": [6, 0, -8],
+            "size": [2, 16, 16]
+          },
+          "minecraft:selection_box": {
+            "origin": [6, 0, -8],
+            "size": [2, 16, 16]
+          }
+        }
+      },
+      {
+        "condition": "q.block_state('minecraft:cardinal_direction') == 'west' && q.block_state('edu:isOpen') == true ",
+        "components": {
+          "minecraft:transformation": {
+            "rotation": [0, 270, 0]
+          },
+          "minecraft:geometry": "geometry.portrait_agent_open",
+          "minecraft:collision_box": {
+            "origin": [6, 0, -8],
+            "size": [2, 16, 16]
+          },
+          "minecraft:selection_box": {
+            "origin": [6, 0, -8],
+            "size": [2, 16, 16]
+          }
+        }
+      }
+    ]
+  }
+}
