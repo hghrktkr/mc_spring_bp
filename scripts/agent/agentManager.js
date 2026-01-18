@@ -16,6 +16,20 @@ class AgentManager {
      * @param {Player} player 
      */
     setAgent(agent, player) {
+        if (this.checkHasAgentFromPlayerId(player.id)) {
+            if (testMode) world.sendMessage(`§c[test] player: ${player.nameTag}, agent: ${agent.nameTag}はすでに登録されています`);
+            
+            if (this.checkAgentExistsFromPlayerId(player.id)) {
+                if (testMode) world.sendMessage(`§c[test] 登録を中断します`);
+                return;
+            }
+            else {
+                if (testMode) world.sendMessage(`§c[test] agent: ${agent.nameTag}がデスポーンしています`);
+                this.deleteAgentFromPlayerId(player.id);
+                return;
+            }
+        }
+
         const newAgentInstance = new Agent(agent, player);
         this.agentsFromPlayerId.set(
             newAgentInstance.playerId,
@@ -25,7 +39,7 @@ class AgentManager {
             newAgentInstance.agentId,
             newAgentInstance
         );
-        if (testMode) world.sendMessage(`[test] player: ${player.nameTag}, agent: ${agent.nameTag}を追加`);
+        if (testMode) world.sendMessage(`§c[test] player: ${player.nameTag}, agent: ${agent.nameTag}を追加しました`);
     }
 
     /**
@@ -35,7 +49,13 @@ class AgentManager {
      */
     getAgentFromPlayerId(playerId) {
         if (!this.checkHasAgentFromPlayerId(playerId)) {
-            if (testMode) world.sendMessage(`[test] playerId: ${playerId} のエージェントが見つかりませんでした`);
+            if (testMode) world.sendMessage(`§c[test] playerId: ${playerId} のエージェントが見つかりませんでした`);
+            return null;
+        }
+
+        if (!this.checkAgentExistsFromPlayerId(playerId)) {
+            if (testMode) world.sendMessage(`§c[test] playerId: ${playerId} のデータはありましたがエージェントがデスポーンしています`);
+            this.deleteAgentFromPlayerId(playerId);
             return null;
         }
 
@@ -49,7 +69,13 @@ class AgentManager {
      */
     getAgentFromAgentId(agentId) {
         if (!this.checkHasAgentFromAgentId(agentId)) {
-            if (testMode) world.sendMessage(`[test] agentId: ${agentId} のエージェントが見つかりませんでした`);
+            if (testMode) world.sendMessage(`§c[test] agentId: ${agentId} のエージェントが見つかりませんでした`);
+            return null;
+        }
+
+        if (!this.checkAgentExistsFromAgentId(agentId)) {
+            if (testMode) world.sendMessage(`§c[test] agentId: ${agentId} のデータはありましたがエージェントがデスポーンしています`);
+            this.deleteAgentFromAgentId(agentId);
             return null;
         }
 
@@ -61,14 +87,12 @@ class AgentManager {
      * @param {string} playerId 
      */
     deleteAgentFromPlayerId(playerId) {
-        if (!this.checkHasAgentFromPlayerId(playerId)) {
-            if (testMode) world.sendMessage(`[test] playerId: ${playerId} のエージェントが見つかりませんでした`);
-            return;
-        }
-
-        const agentId = this.getAgentFromPlayerId(playerId).agentId;
+        const agentInstance = this.agentsFromPlayerId.get(playerId);
+        if (!agentInstance) return;
+        const agentId = agentInstance.agentId;
         this.agentsFromPlayerId.delete(playerId);
         this.agentsFromAgentId.delete(agentId);
+        if (testMode) world.sendMessage(`§c[test] playerId: ${playerId} agentId: ${agentId}を削除しました`);
     }
 
     /**
@@ -76,14 +100,12 @@ class AgentManager {
      * @param {string} agentId 
      */
     deleteAgentFromAgentId(agentId) {
-        if (!this.checkHasAgentFromAgentId(agentId)) {
-            if (testMode) world.sendMessage(`[test] agentId: ${agentId} のエージェントが見つかりませんでした`);
-            return;
-        }
-
-        const playerId = this.getAgentFromAgentId(agentId).playerId;
+        const agentInstance = this.agentsFromAgentId.get(agentId);
+        if (!agentInstance) return;
+        const agentId = agentInstance.agentId;
         this.agentsFromAgentId.delete(agentId);
         this.agentsFromPlayerId.delete(playerId);
+        if (testMode) world.sendMessage(`§c[test] playerId: ${playerId} agentId: ${agentId}を削除しました`);
     }
 
     /**
@@ -92,16 +114,7 @@ class AgentManager {
      * @returns {boolean}
      */
     checkHasAgentFromPlayerId(playerId) {
-        if (!this.agentsFromPlayerId.has(playerId)) return false;
-        
-        const agentInstance = this.getAgentFromPlayerId(playerId);
-
-        if (agentInstance === null | !agentInstance.agent.isValid) {
-            if (testMode) world.sendMessage(`[test] playerId: ${playerId} に該当するエージェントがデスポーンしています`);
-            this.deleteAgentFromPlayerId(playerId);
-            return false
-        }
-        return true;
+        return this.agentsFromPlayerId.has(playerId) ? true : false;
     }
 
     /**
@@ -110,16 +123,29 @@ class AgentManager {
      * @returns {boolean}
      */
     checkHasAgentFromAgentId(agentId) {
-        if (!this.agentsFromAgentId.has(agentId)) return false;
+        return this.agentsFromAgentId.has(agentId) ? true : false;
+    }
 
-        const agentInstance = this.getAgentFromAgentId(agentId);
+    /**
+     * 
+     * @param {string} playerId 
+     * @returns {boolean}
+     */
+    checkAgentExistsFromPlayerId(playerId) {
+        const agentInstance = this.agentsFromPlayerId.get(playerId);
         
-        if (agentInstance === null | !agentInstance.agent.isValid) {
-            if (testMode) world.sendMessage(`[test] agentId: ${agentId} に該当するエージェントがデスポーンしています`);
-            this.deleteAgentFromAgentId(agentId);
-            return false
-        }
-        return true;
+        return agentInstance && agentInstance.agent.isValid ? true : false;
+    }
+
+    /**
+     * 
+     * @param {string} agentId 
+     * @returns {boolean}
+     */
+    checkAgentExistsFromAgentId(agentId) {
+        const agentInstance = this.agentsFromAgentId.get(agentId);
+        
+        return agentInstance && agentInstance.agent.isValid ? true : false;
     }
 }
 
