@@ -1,12 +1,13 @@
 // Agentとプレイヤーの紐づけ、管理
 
-import { Entity, Player } from "@minecraft/server";
-import { AgentMove } from "./agentMove";
+import { Entity, Player, world } from "@minecraft/server";
+import { Agent } from "./ClassAgent";
 import { testMode } from "../settings/testMode";
 
 class AgentManager {
     constructor() {
-        this.agentMap = new Map();
+        this.agentsFromPlayerId = new Map();    // playerId -> AgentInstance
+        this.agentsFromAgentId = new Map();     // agentId -> AgentInstance
     }
 
     /**
@@ -15,18 +16,44 @@ class AgentManager {
      * @param {Player} player 
      */
     setAgent(agent, player) {
-        const newAgentInstance = new AgentMove(agent, player);
-        this.agentMap.set(player.id, newAgentInstance);
-        if (testMode) player.sendMessage(`[test] player: ${player.nameTag}, agent: ${agent.nameTag}を追加`);
+        const newAgentInstance = new Agent(agent, player);
+        this.agentsFromPlayerId.set(
+            newAgentInstance.playerId,
+            newAgentInstance
+        );
+        this.agentsFromAgentId.set(
+            newAgentInstance.agentId,
+            newAgentInstance
+        );
+        if (testMode) world.sendMessage(`[test] player: ${player.nameTag}, agent: ${agent.nameTag}を追加`);
     }
 
     /**
      * 
      * @param {string} playerId 
-     * @returns {AgentMove}
+     * @returns {Agent | null}
      */
     getAgentFromPlayerId(playerId) {
-        return this.agentMap.get(playerId);
+        if (!this.checkHasAgentFromPlayerId(playerId)) {
+            if (testMode) world.sendMessage(`[test] playerId: ${playerId} のエージェントが見つかりませんでした`);
+            return null;
+        }
+
+        return this.agentsFromPlayerId.get(playerId);
+    }
+
+    /**
+     * 
+     * @param {string} agentId 
+     * @returns {Agent | null}
+     */
+    getAgentFromAgentId(agentId) {
+        if (!this.checkHasAgentFromAgentId(agentId)) {
+            if (testMode) world.sendMessage(`[test] agentId: ${agentId} のエージェントが見つかりませんでした`);
+            return null;
+        }
+
+        return this.agentsFromAgentId.get(agentId);
     }
 
     /**
@@ -34,7 +61,29 @@ class AgentManager {
      * @param {string} playerId 
      */
     deleteAgentFromPlayerId(playerId) {
-        this.agentMap.delete(playerId);
+        if (!this.checkHasAgentFromPlayerId(playerId)) {
+            if (testMode) world.sendMessage(`[test] playerId: ${playerId} のエージェントが見つかりませんでした`);
+            return;
+        }
+
+        const agentId = this.getAgentFromPlayerId(playerId).agentId;
+        this.agentsFromPlayerId.delete(playerId);
+        this.agentsFromAgentId.delete(agentId);
+    }
+
+    /**
+     * 
+     * @param {string} agentId 
+     */
+    deleteAgentFromAgentId(agentId) {
+        if (!this.checkHasAgentFromAgentId(agentId)) {
+            if (testMode) world.sendMessage(`[test] agentId: ${agentId} のエージェントが見つかりませんでした`);
+            return;
+        }
+
+        const playerId = this.getAgentFromAgentId(agentId).playerId;
+        this.agentsFromAgentId(agentId);
+        this.agentsFromPlayerId(playerId);
     }
 
     /**
@@ -43,9 +92,22 @@ class AgentManager {
      * @returns {boolean}
      */
     checkHasAgentFromPlayerId(playerId) {
-        if (this.agentMap.has(playerId)) return false;
+        if (!this.agentsFromPlayerId.has(playerId)) return false;
         
         const agentInstance = this.getAgentFromPlayerId(playerId);
+        const existsAgent = agentInstance.agent.isValid;
+        return existsAgent;
+    }
+
+    /**
+     * 
+     * @param {string} agentId 
+     * @returns {boolean}
+     */
+    checkHasAgentFromAgentId(agentId) {
+        if (!this.agentsFromAgentId.has(agentId)) return false;
+
+        const agentInstance = this.getAgentFromAgentId(agentId);
         const existsAgent = agentInstance.agent.isValid;
         return existsAgent;
     }

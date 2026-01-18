@@ -1,25 +1,26 @@
 // エージェントの動きに関する制御
-import { world, system, Entity, Player } from "@minecraft/server"
+import { Entity, Player } from "@minecraft/server"
 import { getDistance } from "../utils/locationUtils";
 
-export class AgentMove {
+export class Agent {
 
     /**
      * 
      * @param {Entity} agent 
      * @param {Player} player 
-     * @param {boolean} isFollowing
-     * @param {{position: {x: number, y: number, z: number}, rotation: {x: number, y: number}}[]} playerPositionHistories
      */
     constructor(agent, player) {
         this.agent = agent;
         this.player = player;
+        this.agentId = agent.id;
+        this.playerId = player.id;
         this.isFollowing = false;
         this.playerPositionHistories = [];
     }
 
     update() {
-        if(!this.agent.isValid || !this.isFollowing) return;
+        if(!this.agent.isValid || !this.player.isValid) return;
+        if(!this.isFollowing) return;
 
         this.recordPlayerPosition();
         this.follow();
