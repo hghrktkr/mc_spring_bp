@@ -95,9 +95,8 @@ class AgentManager {
         if (!this.agentsFromPlayerId.has(playerId)) return false;
         
         const agentInstance = this.getAgentFromPlayerId(playerId);
-        const existsAgent = agentInstance.agent.isValid;
 
-        if (!existsAgent) {
+        if (agentInstance === null | !agentInstance.agent.isValid) {
             if (testMode) world.sendMessage(`[test] playerId: ${playerId} に該当するエージェントがデスポーンしています`);
             this.deleteAgentFromPlayerId(playerId);
             return false
@@ -114,9 +113,8 @@ class AgentManager {
         if (!this.agentsFromAgentId.has(agentId)) return false;
 
         const agentInstance = this.getAgentFromAgentId(agentId);
-        const existsAgent = agentInstance.agent.isValid;
         
-        if (!existsAgent) {
+        if (agentInstance === null | !agentInstance.agent.isValid) {
             if (testMode) world.sendMessage(`[test] agentId: ${agentId} に該当するエージェントがデスポーンしています`);
             this.deleteAgentFromAgentId(agentId);
             return false
