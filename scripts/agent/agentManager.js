@@ -82,8 +82,8 @@ class AgentManager {
         }
 
         const playerId = this.getAgentFromAgentId(agentId).playerId;
-        this.agentsFromAgentId(agentId);
-        this.agentsFromPlayerId(playerId);
+        this.agentsFromAgentId.delete(agentId);
+        this.agentsFromPlayerId.delete(playerId);
     }
 
     /**
@@ -96,7 +96,13 @@ class AgentManager {
         
         const agentInstance = this.getAgentFromPlayerId(playerId);
         const existsAgent = agentInstance.agent.isValid;
-        return existsAgent;
+
+        if (!existsAgent) {
+            if (testMode) world.sendMessage(`[test] playerId: ${playerId} に該当するエージェントがデスポーンしています`);
+            this.deleteAgentFromPlayerId(playerId);
+            return false
+        }
+        return true;
     }
 
     /**
@@ -109,7 +115,13 @@ class AgentManager {
 
         const agentInstance = this.getAgentFromAgentId(agentId);
         const existsAgent = agentInstance.agent.isValid;
-        return existsAgent;
+        
+        if (!existsAgent) {
+            if (testMode) world.sendMessage(`[test] agentId: ${agentId} に該当するエージェントがデスポーンしています`);
+            this.deleteAgentFromAgentId(agentId);
+            return false
+        }
+        return true;
     }
 }
 
