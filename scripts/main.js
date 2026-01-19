@@ -1,13 +1,9 @@
 import { system, world } from "@minecraft/server";
-import { MinecraftEntityTypes, MinecraftItemTypes } from "@minecraft/vanilla-data";
 import { agentManager } from "./agent/agentManager";
+import { testMode } from "./settings/testMode";
 
 // block components
 system.beforeEvents.startup.subscribe((startupEv) => {
-
-    /**
-     * ドアの開閉
-     */
     startupEv.blockComponentRegistry.registerCustomComponent("edu:door_open", {
         onPlayerInteract(playerInteractEv) {
             const player = playerInteractEv.player;
@@ -33,7 +29,8 @@ system.beforeEvents.startup.subscribe((startupEv) => {
 world.afterEvents.entitySpawn.subscribe(ev => {
     const entityType = ev.entity.typeId;
 
-    if (entityType === MinecraftEntityTypes.Agent) {
+    if (entityType === "minecraft:agent") {
+        if (testMode) world.sendMessage(`§6[test] Agent ${ev.entity.id}が検出されました`);
         const agent = ev.entity;
         const agentName = agent.nameTag;
         const player = world.getAllPlayers()
@@ -49,30 +46,28 @@ world.afterEvents.entitySpawn.subscribe(ev => {
 world.afterEvents.entityRemove.subscribe(ev => {
     const {removedEntityId, typeId} = ev;
 
-    if (typeId === MinecraftEntityTypes.Agent) {
+    if (typeId === "minecraft:agent") {
         agentManager.deleteAgentFromAgentId(removedEntityId);
     }
 });
 
 // Agentが追跡するかどうかの切り替え
 world.beforeEvents.itemUse.subscribe(ev => {
-    const {item, source: player} = ev;
+    const {itemStack, source: player} = ev;
+    if (testMode) world.sendMessage('§6[test] アイテムが使用されました');
 
-    if (item.typeId === MinecraftItemTypes.Stick) {
+    if (itemStack.typeId === "minecraft:stick") {
+        if (testMode) world.sendMessage('§6[test] 棒が使用されました');
         ev.cancel = true;
         const agentInstance = agentManager.getAgentFromPlayerId(player.id);
         if (agentInstance === null) return;
-
+        
         agentInstance.isFollowing = !agentInstance.isFollowing;
+        if (testMode) world.sendMessage(`§6[test] Agent ${agentInstance.agent.nameTag}の追跡が${agentInstance.isFollowing}に設定されました`);
     }
 });
 
 // 追跡動作
 system.runInterval(() => {
-    for (const agent of agentManager.agentsFromPlayerId.values()) {
-        if (!agent.agent.isValid || !agent.player.isValid) {
-            agentManager.deleteAgentFromAgentId(agent.agentId);
-        }
-        agent.update();
-    }
-}, 20 * 2);
+    agentManager.updateFollowing();
+}, 5);

@@ -8,6 +8,9 @@
       "is_experimental": false
     },
     "components": {
+      "minecraft:attack": {
+        "damage": 30 
+      },
       "minecraft:tick_world": {},
       "minecraft:damage_sensor": {
         "triggers": {

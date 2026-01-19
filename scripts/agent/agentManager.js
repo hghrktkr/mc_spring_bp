@@ -9,6 +9,15 @@ class AgentManager {
         this.agentsFromPlayerId = new Map();    // playerId -> AgentInstance
         this.agentsFromAgentId = new Map();     // agentId -> AgentInstance
     }
+    
+    updateFollowing() {
+        for (const agent of this.agentsFromPlayerId.values()) {
+            if (!agent.agent.isValid || !agent.player.isValid) {
+                this.deleteAgentFromAgentId(agent.agentId);
+            }
+            agent.update();
+        }
+    }
 
     /**
      * 
@@ -102,7 +111,7 @@ class AgentManager {
     deleteAgentFromAgentId(agentId) {
         const agentInstance = this.agentsFromAgentId.get(agentId);
         if (!agentInstance) return;
-        const agentId = agentInstance.agentId;
+        const playerId = agentInstance.playerId;
         this.agentsFromAgentId.delete(agentId);
         this.agentsFromPlayerId.delete(playerId);
         if (testMode) world.sendMessage(`§c[test] playerId: ${playerId} agentId: ${agentId}を削除しました`);
