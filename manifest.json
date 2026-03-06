@@ -21,11 +21,16 @@
     {
       "module_name": "@minecraft/server",
       "version": "2.0.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "2.0.0"
     }
   ],
   "metadata": {
     "generated_with": {
-      "mctoolsweb": ["0.15.3"]
+      "mctoolsweb": ["0.15.3"],
+      "blockbench_entity_wizard": ["1.8.2"]
     }
   }
 }

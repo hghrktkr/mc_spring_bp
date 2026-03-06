@@ -1,0 +1,18 @@
+{ 
+  "format_version": "1.19.50", 
+  "minecraft:camera_preset": { 
+    "identifier": "edu:third_person_mini", 
+    "inherit_from": "minecraft:free", 
+    "rotation_speed": 120.0,
+    "snap_to_target": true,
+
+    "horizontal_rotation_limit": [ 0.0, 360.0 ],
+    "vertical_rotation_limit": [ 45.0, 135.0 ],
+
+    "continue_targeting": true,
+    "tracking_radius": 64.0,
+
+    "player_effects": true,
+    "listener": "player"
+  } 
+}

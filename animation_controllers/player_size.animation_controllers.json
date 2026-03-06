@@ -1,0 +1,28 @@
+{
+	"format_version" : "1.10.0",
+	"animation_controllers" : {
+		"controller.animation.player_size" : {
+			"initial_state" : "normal",
+			"states" : {
+				"normal" : {
+					"transitions" : [{
+						"mini": "query.is_item_name_any('slot.weapon.mainhand', 0, 'minecraft:blaze_rod')"
+					}],
+					"on_entry": [
+						"@s edu:become_normal",
+						"/say change to normal"
+					]
+				},
+				"mini" :{
+					"transitions": [{
+						"normal": "!query.is_item_name_any('slot.weapon.mainhand', 0, 'minecraft:blaze_rod')"
+					}],
+					"on_entry": [
+						"@s edu:become_mini",
+						"/say change to mini"
+					]
+				}
+			}
+		}
+	}
+}
